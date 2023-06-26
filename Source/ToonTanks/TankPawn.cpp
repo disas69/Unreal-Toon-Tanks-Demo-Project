@@ -17,8 +17,8 @@ ATankPawn::ATankPawn()
 void ATankPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (PlayerController)
+	
+	if (PlayerController && !IsGamepadInput)
 	{
 		FHitResult CursorHitResult;
 		if (PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHitResult))
@@ -33,10 +33,11 @@ void ATankPawn::Tick(float DeltaTime)
 			RotateTurret(Direction);
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("PlayerController is nullptr"));
-	}
+}
+
+void ATankPawn::SetGamepadInputActive(bool IsActive)
+{
+	IsGamepadInput = IsActive;
 }
 
 void ATankPawn::BeginPlay()
@@ -52,6 +53,8 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATankPawn::Move);
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATankPawn::Rotate);
+	PlayerInputComponent->BindVectorAxis(TEXT("RotateTurret"), this, &ATankPawn::RotateTurretInDirection);
+	
 }
 
 void ATankPawn::Move(float Value)
@@ -75,6 +78,14 @@ void ATankPawn::Rotate(float Value)
 void ATankPawn::RotateTurret(FVector LookAtTarget)
 {
 	FRotator TargetRotation = FRotator(0.f, LookAtTarget.Rotation().Yaw, 0.f);
+	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
+	TurretMesh->SetWorldRotation(Rotation);
+}
+
+void ATankPawn::RotateTurretInDirection(FVector Direction)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Direction: %s"), *Direction.ToString());
+	FRotator TargetRotation = FRotator(0.f, Direction.Rotation().Yaw, 0.f);
 	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
 	TurretMesh->SetWorldRotation(Rotation);
 }

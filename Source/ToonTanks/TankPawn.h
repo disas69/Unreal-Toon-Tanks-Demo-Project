@@ -26,6 +26,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetGamepadInputActive(bool IsActive);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,10 +43,12 @@ private:
 	class APlayerController* PlayerController;
 
 	float MoveDirection;
+	bool IsGamepadInput;
 
 	void Move(float Value);
 	void Rotate(float Value);
 	void RotateTurret(FVector LookAtTarget);
+	void RotateTurretInDirection(FVector Direction);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
