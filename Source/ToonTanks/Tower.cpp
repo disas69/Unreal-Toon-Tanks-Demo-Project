@@ -9,23 +9,42 @@ void ATower::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (PlayerPawn)
+	if (IsPlayerInRange())
 	{
-		float DistanceToPlayer = FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
-		if (DistanceToPlayer <= FireRange)
-		{
-			FVector Direction = PlayerPawn->GetActorLocation() - GetActorLocation();
-			Direction.Z = 0.f;
-			Direction.Normalize();
+		FVector Direction = PlayerPawn->GetActorLocation() - GetActorLocation();
+		Direction.Z = 0.f;
+		Direction.Normalize();
 
-			RotateTurret(Direction);
-		}
+		RotateTurret(Direction);
 	}
-
 }
 
 void ATower::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerPawn = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ATower::CheckFireCondition, FireRate, true);
+}
+
+void ATower::CheckFireCondition()
+{
+	if (IsPlayerInRange())
+	{
+		Fire();
+	}
+}
+
+bool ATower::IsPlayerInRange()
+{
+	if (PlayerPawn)
+	{
+		float DistanceToPlayer = FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
+		if (DistanceToPlayer <= FireRange)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }

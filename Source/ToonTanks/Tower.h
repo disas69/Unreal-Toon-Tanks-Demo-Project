@@ -18,6 +18,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float FireRange = 500.f;
+
+	UPROPERTY(EditAnywhere)
+	float FireRate = 2.f;
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -28,4 +31,8 @@ protected:
 
 private:
 	class ATank* PlayerPawn;
+	FTimerHandle FireRateTimerHandle;
+
+	void CheckFireCondition();
+	bool IsPlayerInRange();
 };
