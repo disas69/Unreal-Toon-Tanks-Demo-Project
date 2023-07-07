@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "TankBase.h"
-#include "TowerPawn.generated.h"
+#include "Tower.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TOONTANKS_API ATowerPawn : public ATankBase
+class TOONTANKS_API ATower : public ATankBase
 {
 	GENERATED_BODY()
 
@@ -27,7 +27,5 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	class ATankPawn* PlayerPawn;
-
-	void RotateTurret(FVector LookAtTarget);
+	class ATank* PlayerPawn;
 };

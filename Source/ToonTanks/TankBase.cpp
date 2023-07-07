@@ -30,6 +30,21 @@ void ATankBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ATankBase::RotateTurret(FVector LookAtTarget)
+{
+	FRotator TargetRotation = FRotationMatrix::MakeFromX(LookAtTarget).Rotator();
+	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
+	TurretMesh->SetWorldRotation(Rotation);
+}
+
+void ATankBase::Fire()
+{
+	FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+	FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+
+	DrawDebugSphere(GetWorld(), SpawnLocation, 25.f, 8, FColor::Red, false, 2.f);
+}
+
 // Called every frame
 void ATankBase::Tick(float DeltaTime)
 {

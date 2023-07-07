@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "TankBase.h"
-#include "TankPawn.generated.h"
+#include "Tank.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TOONTANKS_API ATankPawn : public ATankBase
+class TOONTANKS_API ATank : public ATankBase
 {
 	GENERATED_BODY()
 
 public:
-	ATankPawn();
+	ATank();
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed = 100.f;
@@ -47,7 +47,6 @@ private:
 
 	void Move(float Value);
 	void Rotate(float Value);
-	void RotateTurret(FVector LookAtTarget);
 	void RotateTurretInDirection(FVector Direction);
 
 	// Called to bind functionality to input
