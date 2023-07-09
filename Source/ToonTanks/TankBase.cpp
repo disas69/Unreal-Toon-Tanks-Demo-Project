@@ -3,6 +3,7 @@
 
 #include "TankBase.h"
 #include "FCTween.h"
+#include "HealthComponent.h"
 #include "Projectile.h"
 #include "Components/CapsuleComponent.h"
 
@@ -29,6 +30,12 @@ ATankBase::ATankBase()
 void ATankBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HealthComponent = FindComponentByClass<UHealthComponent>();
+	if (HealthComponent)
+	{
+		OnTakeAnyDamage.AddDynamic(HealthComponent, &UHealthComponent::DamageTaken);
+	}
 }
 
 void ATankBase::RotateTurret(FVector LookAtTarget)
@@ -47,7 +54,8 @@ void ATankBase::Fire()
 
 	DrawDebugSphere(GetWorld(), SpawnLocation, 25.f, 8, FColor::Red, false, 2.f);
 
-	GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+	Projectile->SetOwner(this);
 }
 
 // Called every frame
