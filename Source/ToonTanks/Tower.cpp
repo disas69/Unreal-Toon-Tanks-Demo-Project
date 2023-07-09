@@ -9,6 +9,11 @@ void ATower::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (PlayerPawn == nullptr)
+	{
+		PlayerPawn = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
+	}
+
 	if (IsPlayerInRange())
 	{
 		FVector Direction = PlayerPawn->GetActorLocation() - GetActorLocation();

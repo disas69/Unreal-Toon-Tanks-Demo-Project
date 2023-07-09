@@ -3,6 +3,7 @@
 
 #include "TankBase.h"
 #include "FCTween.h"
+#include "Projectile.h"
 #include "Components/CapsuleComponent.h"
 
 // Sets default values
@@ -32,9 +33,11 @@ void ATankBase::BeginPlay()
 
 void ATankBase::RotateTurret(FVector LookAtTarget)
 {
-	FRotator TargetRotation = FRotationMatrix::MakeFromX(LookAtTarget).Rotator();
+	FRotator TargetRotation = FRotator(0.f, LookAtTarget.Rotation().Yaw, 0.f);
 	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
-	TurretMesh->SetWorldRotation(Rotation);
+	TurretMesh->SetWorldRotation(TargetRotation);
+
+	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s, Target Rotation: %s"), *Rotation.ToString(), *TargetRotation.ToString());
 }
 
 void ATankBase::Fire()
@@ -43,6 +46,8 @@ void ATankBase::Fire()
 	FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
 
 	DrawDebugSphere(GetWorld(), SpawnLocation, 25.f, 8, FColor::Red, false, 2.f);
+
+	GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 }
 
 // Called every frame

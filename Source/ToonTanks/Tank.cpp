@@ -30,6 +30,8 @@ void ATank::Tick(float DeltaTime)
 			FVector Direction = HitLocation - GetActorLocation();
 			Direction.Normalize();
 
+			DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Direction * 1000.f, FColor::Red, false, 0.1f, 0, 5.f);
+
 			RotateTurret(Direction);
 		}
 	}
