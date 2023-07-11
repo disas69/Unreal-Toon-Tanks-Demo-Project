@@ -16,6 +16,7 @@ class TOONTANKS_API ATanksGameMode : public AGameModeBase
 
 private:
 	class ATank* PlayerTank;
+	class ATankPlayerController* PlayerController;
 
 protected:
 	// Called when the game starts or when spawned
