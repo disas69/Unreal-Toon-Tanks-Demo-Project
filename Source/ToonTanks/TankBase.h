@@ -45,4 +45,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
+
+	virtual void HandleDestruction();
 };

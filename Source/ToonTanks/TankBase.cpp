@@ -72,3 +72,8 @@ void ATankBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void ATankBase::HandleDestruction()
+{
+	
+}
+

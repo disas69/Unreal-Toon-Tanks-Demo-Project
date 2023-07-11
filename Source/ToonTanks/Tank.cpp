@@ -42,6 +42,13 @@ void ATank::SetGamepadInputActive(bool IsActive)
 	IsGamepadInput = IsActive;
 }
 
+void ATank::HandleDestruction()
+{
+	Super::HandleDestruction();
+	SetActorHiddenInGame(true);
+	SetActorTickEnabled(false);
+}
+
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();

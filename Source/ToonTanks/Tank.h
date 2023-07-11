@@ -29,6 +29,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetGamepadInputActive(bool IsActive);
 
+	virtual void HandleDestruction() override;
+
+	class APlayerController* PlayerController;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,8 +43,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
-
-	class APlayerController* PlayerController;
 
 	float MoveDirection;
 	bool IsGamepadInput;

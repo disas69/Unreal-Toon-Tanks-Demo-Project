@@ -3,6 +3,9 @@
 
 #include "HealthComponent.h"
 
+#include "TanksGameMode.h"
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
@@ -20,6 +23,7 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Health = MaxHealth;
+	GameMode = Cast<ATanksGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 
@@ -40,5 +44,17 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Health);
+
+	if (Health <= 0.f)
+	{
+		if (GameMode)
+		{
+			GameMode->ActorDied(DamagedActor);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Health component has no reference to the game mode"));
+		}
+	}
 }
 
