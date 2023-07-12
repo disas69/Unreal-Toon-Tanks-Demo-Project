@@ -24,5 +24,13 @@ protected:
 	
 public:
 	void ActorDied(AActor* DeadActor);
+
+	UPROPERTY(EditAnywhere)
+	float StartDelay = 3.f;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartGame();
+
+	void HandleGameStart();
 	
 };

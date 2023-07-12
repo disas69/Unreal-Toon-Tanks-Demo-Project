@@ -14,6 +14,9 @@ void ATanksGameMode::BeginPlay()
 
 	PlayerTank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
 	PlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+	StartGame();
+	HandleGameStart();
 }
 
 void ATanksGameMode::ActorDied(AActor* DeadActor)
@@ -30,5 +33,18 @@ void ATanksGameMode::ActorDied(AActor* DeadActor)
 	else if (ATower* DestroyedTower = Cast<ATower>(DeadActor))
 	{
 		DestroyedTower->HandleDestruction();
+	}
+}
+
+void ATanksGameMode::HandleGameStart()
+{
+	if (PlayerController)
+	{
+		PlayerController->EnablePlayerInput(false);
+
+		FTimerHandle PlayerEnableHandle;
+		FTimerDelegate PlayerEnableDelegate = FTimerDelegate::CreateUObject(PlayerController, &ATankPlayerController::EnablePlayerInput, true);
+
+		GetWorldTimerManager().SetTimer(PlayerEnableHandle, PlayerEnableDelegate, StartDelay, false);
 	}
 }

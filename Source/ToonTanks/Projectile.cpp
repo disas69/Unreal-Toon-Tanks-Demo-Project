@@ -46,7 +46,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			this,
 			UDamageType::StaticClass()
 		);
-	}
 
-	Destroy();
+		Destroy();
+	}
 }

@@ -18,7 +18,7 @@ void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (PlayerController && !IsGamepadInput)
+	if (PlayerController && InputEnabled() && !IsGamepadInput)
 	{
 		FHitResult CursorHitResult;
 		if (PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHitResult))
