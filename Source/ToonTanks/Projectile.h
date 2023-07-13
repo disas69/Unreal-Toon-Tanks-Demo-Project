@@ -36,6 +36,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* HitParticle;
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* HitSound;
 	
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

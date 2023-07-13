@@ -22,7 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void RotateTurret(FVector LookAtTarget);
-	void Fire();
+	virtual void Fire();
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* DestructionParticle;
@@ -48,6 +48,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* DestructionSound;
 
 	virtual void HandleDestruction();
 };

@@ -78,5 +78,10 @@ void ATankBase::HandleDestruction()
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, DestructionParticle, GetActorLocation());
 	}
+
+	if (DestructionSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DestructionSound, GetActorLocation());
+	}
 }
 

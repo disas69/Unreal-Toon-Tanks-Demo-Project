@@ -56,6 +56,15 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			);
 		}
 
+		if (HitSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				HitSound,
+				GetActorLocation()
+			);
+		}
+
 		Destroy();
 	}
 }

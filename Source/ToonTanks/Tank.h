@@ -31,7 +31,15 @@ public:
 
 	virtual void HandleDestruction() override;
 
+	virtual void Fire() override;
+
 	class APlayerController* PlayerController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCameraShakeBase> HitCameraShake;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UCameraShakeBase> DestroyCameraShake;
 
 protected:
 	// Called when the game starts or when spawned

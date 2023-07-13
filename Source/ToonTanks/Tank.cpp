@@ -4,6 +4,7 @@
 #include "Tank.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ATank::ATank()
 {
@@ -47,6 +48,21 @@ void ATank::HandleDestruction()
 	Super::HandleDestruction();
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
+
+	if (DestroyCameraShake)
+	{
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraShake(DestroyCameraShake);
+	}
+}
+
+void ATank::Fire()
+{
+	Super::Fire();
+
+	if (HitCameraShake)
+	{
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->StartCameraShake(HitCameraShake);
+	}
 }
 
 void ATank::BeginPlay()
