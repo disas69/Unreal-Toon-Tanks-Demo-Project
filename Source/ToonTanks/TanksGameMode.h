@@ -17,6 +17,7 @@ class TOONTANKS_API ATanksGameMode : public AGameModeBase
 private:
 	class ATank* PlayerTank;
 	class ATankPlayerController* PlayerController;
+	int32 TargetTurretsCount = 0;
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,6 +32,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartGame();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void GameOver(bool WonGame);
+
 	void HandleGameStart();
+	int32 GetTargetTurretsCount();
 	
 };

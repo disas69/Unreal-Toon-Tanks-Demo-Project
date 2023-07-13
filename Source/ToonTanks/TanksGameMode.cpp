@@ -17,6 +17,8 @@ void ATanksGameMode::BeginPlay()
 
 	StartGame();
 	HandleGameStart();
+
+	TargetTurretsCount = GetTargetTurretsCount();
 }
 
 void ATanksGameMode::ActorDied(AActor* DeadActor)
@@ -29,10 +31,18 @@ void ATanksGameMode::ActorDied(AActor* DeadActor)
 		{
 			PlayerController->EnablePlayerInput(false);
 		}
+		
+		GameOver(false);
 	}
 	else if (ATower* DestroyedTower = Cast<ATower>(DeadActor))
 	{
 		DestroyedTower->HandleDestruction();
+
+		TargetTurretsCount--;
+		if (TargetTurretsCount == 0)
+		{
+			GameOver(true);
+		}
 	}
 }
 
@@ -47,4 +57,12 @@ void ATanksGameMode::HandleGameStart()
 
 		GetWorldTimerManager().SetTimer(PlayerEnableHandle, PlayerEnableDelegate, StartDelay, false);
 	}
+}
+
+int32 ATanksGameMode::GetTargetTurretsCount()
+{
+	TArray<AActor*> Turrets;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATower::StaticClass(), Turrets);
+
+	return Turrets.Num(); 
 }

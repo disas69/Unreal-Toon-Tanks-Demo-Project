@@ -33,6 +33,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float Damage = 50.f;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* HitParticle;
 	
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

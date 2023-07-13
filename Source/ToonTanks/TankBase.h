@@ -24,6 +24,9 @@ protected:
 	void RotateTurret(FVector LookAtTarget);
 	void Fire();
 
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* DestructionParticle;
+
 public:
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent* CapsuleComp;

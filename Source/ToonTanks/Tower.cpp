@@ -48,7 +48,7 @@ void ATower::CheckFireCondition()
 
 bool ATower::IsPlayerInRange()
 {
-	if (PlayerPawn)
+	if (PlayerPawn && !PlayerPawn->IsHidden())
 	{
 		float DistanceToPlayer = FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
 		if (DistanceToPlayer <= FireRange)

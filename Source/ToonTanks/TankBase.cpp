@@ -6,6 +6,7 @@
 #include "HealthComponent.h"
 #include "Projectile.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATankBase::ATankBase()
@@ -52,7 +53,7 @@ void ATankBase::Fire()
 	FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
 	FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
 
-	DrawDebugSphere(GetWorld(), SpawnLocation, 25.f, 8, FColor::Red, false, 2.f);
+	// DrawDebugSphere(GetWorld(), SpawnLocation, 25.f, 8, FColor::Red, false, 2.f);
 
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 	Projectile->SetOwner(this);
@@ -69,11 +70,13 @@ void ATankBase::Tick(float DeltaTime)
 void ATankBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void ATankBase::HandleDestruction()
 {
-	
+	if (DestructionParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, DestructionParticle, GetActorLocation());
+	}
 }
 
