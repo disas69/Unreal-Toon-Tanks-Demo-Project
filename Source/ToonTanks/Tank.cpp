@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ATank::ATank()
 {
@@ -21,6 +22,8 @@ void ATank::Tick(float DeltaTime)
 	
 	if (PlayerController && InputEnabled() && !IsGamepadInput)
 	{
+		PlayerController->bShowMouseCursor = true;
+		
 		FHitResult CursorHitResult;
 		if (PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHitResult))
 		{
@@ -35,6 +38,10 @@ void ATank::Tick(float DeltaTime)
 
 			RotateTurret(Direction);
 		}
+	}
+	else
+	{
+		PlayerController->bShowMouseCursor = false;
 	}
 }
 
@@ -78,7 +85,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATank::Rotate);
-	PlayerInputComponent->BindVectorAxis(TEXT("RotateTurret"), this, &ATank::RotateTurretInDirection);
+	PlayerInputComponent->BindVectorAxis(EKeys::Gamepad_Right2D, this, &ATank::RotateTurretInDirection);
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
 	
 }
@@ -103,10 +110,18 @@ void ATank::Rotate(float Value)
 
 void ATank::RotateTurretInDirection(FVector Direction)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Direction: %s"), *Direction.ToString());
-	FRotator TargetRotation = FRotator(0.f, Direction.Rotation().Yaw, 0.f);
-	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
-	TurretMesh->SetWorldRotation(Rotation);
+	if (IsGamepadInput && Direction.SizeSquared() > 0.1f)
+	{
+		Direction.Set(-Direction.Y, Direction.X, 0.f);
+		// Find LookAt Rotation
+		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), GetActorLocation() + Direction);
+		
+		// Multiply by forward vector to get the correct rotation
+		TargetRotation = (TargetRotation.Quaternion() * GetActorForwardVector()).Rotation();
+
+		FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
+		TurretMesh->SetWorldRotation(Rotation);
+	}
 }
 
 

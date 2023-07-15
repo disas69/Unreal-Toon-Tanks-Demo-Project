@@ -43,9 +43,7 @@ void ATankBase::RotateTurret(FVector LookAtTarget)
 {
 	FRotator TargetRotation = FRotator(0.f, LookAtTarget.Rotation().Yaw, 0.f);
 	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
-	TurretMesh->SetWorldRotation(TargetRotation);
-
-	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s, Target Rotation: %s"), *Rotation.ToString(), *TargetRotation.ToString());
+	TurretMesh->SetWorldRotation(Rotation);
 }
 
 void ATankBase::Fire()
