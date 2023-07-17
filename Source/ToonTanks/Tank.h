@@ -52,7 +52,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
 
-	float MoveDirection;
+	FVector MoveDirection;
 	bool IsGamepadInput;
 
 	void Move(float Value);

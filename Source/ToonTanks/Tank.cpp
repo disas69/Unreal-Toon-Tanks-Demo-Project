@@ -43,6 +43,26 @@ void ATank::Tick(float DeltaTime)
 	{
 		PlayerController->bShowMouseCursor = false;
 	}
+
+	if (MoveDirection != FVector::ZeroVector)
+	{
+		float Scale = FMath::Clamp(MoveDirection.Size(), 0.f, 1.f);
+		MoveDirection.Normalize();
+		
+		AddActorWorldOffset(MoveDirection * Scale * MoveSpeed * DeltaTime, true);
+
+		FRotator TurretRotation = TurretMesh->GetComponentRotation();
+		
+		// Rotate tank in direction of movement
+		FRotator Rotation = UKismetMathLibrary::MakeRotFromX(MoveDirection);
+		Rotation.Pitch = 0.f;
+		Rotation.Roll = 0.f;
+		
+		FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), Rotation, DeltaTime, 7.5f);
+		SetActorRotation(SmoothRotation);
+
+		TurretMesh->SetWorldRotation(TurretRotation);
+	}
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)
@@ -84,7 +104,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATank::Rotate);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ATank::Rotate);
 	PlayerInputComponent->BindVectorAxis(EKeys::Gamepad_Right2D, this, &ATank::RotateTurretInDirection);
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
 	
@@ -92,20 +112,12 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ATank::Move(float Value)
 {
-	MoveDirection = Value;
-	FVector Forward = GetActorForwardVector();
-	AddActorWorldOffset(Forward * Value * MoveSpeed * GetWorld()->DeltaTimeSeconds, true);
+	MoveDirection.X = Value;
 }
 
 void ATank::Rotate(float Value)
 {
-	if (MoveDirection < 0.f)
-	{
-		Value *= -1;
-	}
-	
-	FRotator Rotation = FRotator(0.f, Value * RotateSpeed * GetWorld()->DeltaTimeSeconds, 0.f);
-	AddActorWorldRotation(Rotation, true);
+	MoveDirection.Y = Value;
 }
 
 void ATank::RotateTurretInDirection(FVector Direction)
