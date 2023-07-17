@@ -65,6 +65,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			);
 		}
 
-		Destroy();
+		// Deactivate actor and destroy it after 1 second
+		ProjectileMesh->SetVisibility(false);
+		ProjectileMesh->SetSimulatePhysics(false);
+		ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		ProjectileMovement->Deactivate();
+		SetLifeSpan(1.f);
 	}
 }

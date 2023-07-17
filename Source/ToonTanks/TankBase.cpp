@@ -7,6 +7,7 @@
 #include "Projectile.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ATankBase::ATankBase()
@@ -55,13 +56,22 @@ void ATankBase::Fire()
 
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 	Projectile->SetOwner(this);
+
+	float Recoil = 20.f;
+	FVector LaunchDirection = -UKismetMathLibrary::GetForwardVector(TurretMesh->GetRelativeRotation());
+	TurretMesh->SetRelativeLocation(FVector::Zero() + (LaunchDirection * Recoil));
+
+	FCTween::Play(Recoil, 0.f, [this](float Value)
+	{
+		FVector LaunchDirection = -UKismetMathLibrary::GetForwardVector(TurretMesh->GetRelativeRotation());
+		TurretMesh->SetRelativeLocation(FVector::Zero() + (LaunchDirection * Value));
+	}, 0.25f, EFCEase::OutCubic);
 }
 
 // Called every frame
 void ATankBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input

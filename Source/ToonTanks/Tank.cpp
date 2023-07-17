@@ -134,8 +134,11 @@ void ATank::RotateTurretInDirection(FVector Direction)
 		// Find LookAt Rotation
 		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), GetActorLocation() + Direction);
 		
-		// Multiply by forward vector to get the correct rotation
-		TargetRotation = (TargetRotation.Quaternion() * GetActorForwardVector()).Rotation();
+		// Multiply by camera forward vector to get the correct rotation
+		FRotator CameraRotation = Camera->GetComponentRotation();
+		CameraRotation.Pitch = 0.f;
+		CameraRotation.Roll = 0.f;
+		TargetRotation = UKismetMathLibrary::ComposeRotators(TargetRotation, CameraRotation);
 
 		FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
 		TurretMesh->SetWorldRotation(Rotation);
