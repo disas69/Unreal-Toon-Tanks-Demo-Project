@@ -44,9 +44,10 @@ void ATank::Tick(float DeltaTime)
 		PlayerController->bShowMouseCursor = false;
 	}
 
+	float Scale = FMath::Clamp(MoveDirection.Size(), 0.f, 1.f);
+	
 	if (MoveDirection != FVector::ZeroVector)
 	{
-		float Scale = FMath::Clamp(MoveDirection.Size(), 0.f, 1.f);
 		MoveDirection.Normalize();
 		
 		AddActorWorldOffset(MoveDirection * Scale * MoveSpeed * DeltaTime, true);
@@ -63,6 +64,11 @@ void ATank::Tick(float DeltaTime)
 
 		TurretMesh->SetWorldRotation(TurretRotation);
 	}
+
+	// Rotate base mesh Y relative to scale
+	FRotator BaseRotation = BaseMesh->GetRelativeRotation();
+	BaseRotation.Pitch = FMath::Lerp(0.f, 5.f, Scale);
+	BaseMesh->SetRelativeRotation(BaseRotation);
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)

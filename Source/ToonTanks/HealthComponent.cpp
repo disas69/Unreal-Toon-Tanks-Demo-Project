@@ -3,6 +3,7 @@
 
 #include "HealthComponent.h"
 
+#include "TankBase.h"
 #include "TanksGameMode.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -54,6 +55,13 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Health component has no reference to the game mode"));
+		}
+	}
+	else
+	{
+		if (ATankBase* Tank = Cast<ATankBase>(DamagedActor))
+		{
+			Tank->OnDamageTaken();
 		}
 	}
 }

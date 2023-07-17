@@ -52,5 +52,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundBase* DestructionSound;
 
+	UFUNCTION(BlueprintCallable)
+	void OnDamageTaken();
+
 	virtual void HandleDestruction();
 };

@@ -70,6 +70,16 @@ void ATankBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void ATankBase::OnDamageTaken()
+{
+	// Animate the scale of the tank when it takes damage
+	BaseMesh->SetWorldScale3D(FVector(1.25f));
+	FCTween::Play(1.2f, 1.f, [this](float Value)
+	{
+		BaseMesh->SetWorldScale3D(FVector(Value));
+	}, 0.3f, EFCEase::OutBounce);
+}
+
 void ATankBase::HandleDestruction()
 {
 	if (DestructionParticle)
