@@ -163,12 +163,18 @@ void ATank::OnStartMoving()
 		MoveAnimTween->Destroy();
 	}
 	
-	MoveAnimTween = FCTween::Play(0.f, 8.f, [this](float Value)
+	MoveAnimTween = FCTween::Play(0.f, 5.f, [this](float Value)
 	{
+		FRotator TurretRotation = TurretMesh->GetComponentRotation();
+		
 		FRotator BaseRotation = BaseMesh->GetRelativeRotation();
 		BaseRotation.Pitch = Value;
 		BaseMesh->SetRelativeRotation(BaseRotation);
-	}, 0.25f, EFCEase::OutCubic);
+
+		TurretMesh->SetWorldRotation(TurretRotation);
+	}, 0.15f, EFCEase::InOutSine)
+	->SetYoyo(true)
+	->SetLoops(-1);
 }
 
 void ATank::OnStopMoving()
@@ -178,7 +184,7 @@ void ATank::OnStopMoving()
 		MoveAnimTween->Destroy();
 	}
 	
-	MoveAnimTween = FCTween::Play(15.f, 0.f, [this](float Value)
+	MoveAnimTween = FCTween::Play(10.f, 0.f, [this](float Value)
 	{
 		FRotator BaseRotation = BaseMesh->GetRelativeRotation();
 		BaseRotation.Pitch = Value;

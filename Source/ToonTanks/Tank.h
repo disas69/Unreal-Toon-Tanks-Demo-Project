@@ -60,7 +60,7 @@ private:
 	void Rotate(float Value);
 	void RotateTurretInDirection(FVector Direction);
 
-	class FCTweenInstanceFloat* MoveAnimTween;
+	class FCTweenInstance* MoveAnimTween;
 	void OnStartMoving();
 	void OnStopMoving();
 

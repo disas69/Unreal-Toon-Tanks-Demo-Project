@@ -36,9 +36,16 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!IsActive)
+	{
+		return;
+	}
+	
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor && OtherActor && OtherActor != OwnerActor && OtherActor != this)
 	{
+		IsActive = false;
+		
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
 			Damage,

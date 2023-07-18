@@ -30,7 +30,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-
+	bool IsActive = true;
+	
 	UPROPERTY(EditAnywhere)
 	float Damage = 50.f;
 
