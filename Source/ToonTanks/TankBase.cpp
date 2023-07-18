@@ -57,7 +57,7 @@ void ATankBase::Fire()
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 	Projectile->SetOwner(this);
 
-	float Recoil = 20.f;
+	float Recoil = 25.f;
 	FVector LaunchDirection = -UKismetMathLibrary::GetForwardVector(TurretMesh->GetRelativeRotation());
 	TurretMesh->SetRelativeLocation(FVector::Zero() + (LaunchDirection * Recoil));
 

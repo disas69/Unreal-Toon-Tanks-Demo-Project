@@ -53,11 +53,16 @@ private:
 	class UCameraComponent* Camera;
 
 	FVector MoveDirection;
+	bool IsMoving = false;
 	bool IsGamepadInput;
 
 	void Move(float Value);
 	void Rotate(float Value);
 	void RotateTurretInDirection(FVector Direction);
+
+	class FCTweenInstanceFloat* MoveAnimTween;
+	void OnStartMoving();
+	void OnStopMoving();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

@@ -2,6 +2,8 @@
 
 
 #include "Tank.h"
+
+#include "FCTween.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -46,8 +48,14 @@ void ATank::Tick(float DeltaTime)
 
 	float Scale = FMath::Clamp(MoveDirection.Size(), 0.f, 1.f);
 	
-	if (MoveDirection != FVector::ZeroVector)
+	if (Scale > 0.f)
 	{
+		if (!IsMoving)
+		{
+			IsMoving = true;
+			OnStartMoving();
+		}
+		
 		MoveDirection.Normalize();
 		
 		AddActorWorldOffset(MoveDirection * Scale * MoveSpeed * DeltaTime, true);
@@ -64,11 +72,14 @@ void ATank::Tick(float DeltaTime)
 
 		TurretMesh->SetWorldRotation(TurretRotation);
 	}
-
-	// Rotate base mesh Y relative to scale
-	FRotator BaseRotation = BaseMesh->GetRelativeRotation();
-	BaseRotation.Pitch = FMath::Lerp(0.f, 5.f, Scale);
-	BaseMesh->SetRelativeRotation(BaseRotation);
+	else
+	{
+		if (IsMoving)
+		{
+			IsMoving = false;
+			OnStopMoving();
+		}
+	}
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)
@@ -143,6 +154,36 @@ void ATank::RotateTurretInDirection(FVector Direction)
 		FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
 		TurretMesh->SetWorldRotation(Rotation);
 	}
+}
+
+void ATank::OnStartMoving()
+{
+	if (MoveAnimTween)
+	{
+		MoveAnimTween->Destroy();
+	}
+	
+	MoveAnimTween = FCTween::Play(0.f, 8.f, [this](float Value)
+	{
+		FRotator BaseRotation = BaseMesh->GetRelativeRotation();
+		BaseRotation.Pitch = Value;
+		BaseMesh->SetRelativeRotation(BaseRotation);
+	}, 0.25f, EFCEase::OutCubic);
+}
+
+void ATank::OnStopMoving()
+{
+	if (MoveAnimTween)
+	{
+		MoveAnimTween->Destroy();
+	}
+	
+	MoveAnimTween = FCTween::Play(15.f, 0.f, [this](float Value)
+	{
+		FRotator BaseRotation = BaseMesh->GetRelativeRotation();
+		BaseRotation.Pitch = Value;
+		BaseMesh->SetRelativeRotation(BaseRotation);
+	}, 0.35f, EFCEase::OutBounce);
 }
 
 
