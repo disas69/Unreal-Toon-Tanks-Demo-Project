@@ -57,8 +57,11 @@ void ATank::Tick(float DeltaTime)
 		}
 		
 		MoveDirection.Normalize();
+
+		float Speed = Scale * MoveSpeed;
+		SetActorLocation(GetActorLocation() + MoveDirection * Speed * DeltaTime, true);
 		
-		AddActorWorldOffset(MoveDirection * Scale * MoveSpeed * DeltaTime, true);
+		// AddActorWorldOffset(MoveDirection * Scale * MoveSpeed * DeltaTime, true);
 
 		FRotator TurretRotation = TurretMesh->GetComponentRotation();
 		
@@ -80,6 +83,8 @@ void ATank::Tick(float DeltaTime)
 			OnStopMoving();
 		}
 	}
+
+	CheckGround();
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)
@@ -124,7 +129,6 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ATank::Rotate);
 	PlayerInputComponent->BindVectorAxis(EKeys::Gamepad_Right2D, this, &ATank::RotateTurretInDirection);
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
-	
 }
 
 void ATank::Move(float Value)
@@ -172,7 +176,7 @@ void ATank::OnStartMoving()
 		BaseMesh->SetRelativeRotation(BaseRotation);
 
 		TurretMesh->SetWorldRotation(TurretRotation);
-	}, 0.15f, EFCEase::InOutSine)
+	}, 0.125f, EFCEase::InOutSine)
 	->SetYoyo(true)
 	->SetLoops(-1);
 }
@@ -189,7 +193,34 @@ void ATank::OnStopMoving()
 		FRotator BaseRotation = BaseMesh->GetRelativeRotation();
 		BaseRotation.Pitch = Value;
 		BaseMesh->SetRelativeRotation(BaseRotation);
-	}, 0.35f, EFCEase::OutBounce);
+	}, 0.375f, EFCEase::OutBounce);
+}
+
+void ATank::CheckGround()
+{
+	// Check if tank is on the ground
+	FHitResult HitResult;
+	FVector StartLocation = GetActorLocation() + FVector(0.f, 0.f, 50.f);
+	FVector EndLocation = StartLocation - FVector(0.f, 0.f, 300.f);
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	// Raycast to check if tank is on the ground
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams);
+	if (bHit)
+	{
+		// Set the tank's Z location to the hit location
+		FVector Location = GetActorLocation();
+		Location.Z = HitResult.ImpactPoint.Z + GroundOffset;
+		SetActorLocation(Location, false, nullptr, ETeleportType::TeleportPhysics);
+
+		// // Set the tank's rotation to the hit normal
+		// FVector Normal = HitResult.ImpactNormal;
+		// FVector BaseMeshUp = BaseMesh->GetUpVector();
+		// // Rotate up vector to match the hit normal
+		// FQuat Rotation = FQuat::FindBetween(BaseMeshUp, Normal);
+		// BaseMesh->AddLocalRotation(Rotation);
+	}
 }
 
 

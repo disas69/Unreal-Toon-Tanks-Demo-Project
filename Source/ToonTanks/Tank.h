@@ -23,6 +23,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float RotateSpeed = 100.f;
 
+	UPROPERTY(EditAnywhere)
+	float GroundOffset = 100.f;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -63,6 +66,7 @@ private:
 	class FCTweenInstance* MoveAnimTween;
 	void OnStartMoving();
 	void OnStopMoving();
+	void CheckGround();
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
