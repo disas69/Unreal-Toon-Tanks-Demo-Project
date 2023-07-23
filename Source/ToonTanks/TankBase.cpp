@@ -42,9 +42,10 @@ void ATankBase::BeginPlay()
 
 void ATankBase::RotateTurret(FVector LookAtTarget)
 {
-	FRotator TargetRotation = FRotator(0.f, LookAtTarget.Rotation().Yaw, 0.f);
-	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
-	TurretMesh->SetWorldRotation(Rotation);
+	FRotator TargetRotationWorld = FRotator(0.f, LookAtTarget.Rotation().Yaw, 0.f);
+	FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
+	FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
+	TurretMesh->SetRelativeRotation(Rotation);
 }
 
 void ATankBase::Fire()

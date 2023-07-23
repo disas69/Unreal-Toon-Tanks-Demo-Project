@@ -56,6 +56,7 @@ private:
 	class UCameraComponent* Camera;
 
 	FVector MoveDirection;
+	FRotator LastTurretRotation;
 	bool IsMoving = false;
 	bool IsGamepadInput;
 

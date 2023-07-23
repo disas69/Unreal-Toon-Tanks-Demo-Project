@@ -21,6 +21,8 @@ ATank::ATank()
 void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CheckGround();
 	
 	if (PlayerController && InputEnabled() && !IsGamepadInput)
 	{
@@ -53,7 +55,7 @@ void ATank::Tick(float DeltaTime)
 		if (!IsMoving)
 		{
 			IsMoving = true;
-			OnStartMoving();
+			// OnStartMoving();
 		}
 		
 		MoveDirection.Normalize();
@@ -80,11 +82,9 @@ void ATank::Tick(float DeltaTime)
 		if (IsMoving)
 		{
 			IsMoving = false;
-			OnStopMoving();
+			// OnStopMoving();
 		}
 	}
-
-	CheckGround();
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)
@@ -143,20 +143,40 @@ void ATank::Rotate(float Value)
 
 void ATank::RotateTurretInDirection(FVector Direction)
 {
-	if (IsGamepadInput && Direction.SizeSquared() > 0.1f)
+	if (IsGamepadInput)
 	{
-		Direction.Set(-Direction.Y, Direction.X, 0.f);
-		// Find LookAt Rotation
-		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), GetActorLocation() + Direction);
-		
-		// Multiply by camera forward vector to get the correct rotation
-		FRotator CameraRotation = Camera->GetComponentRotation();
-		CameraRotation.Pitch = 0.f;
-		CameraRotation.Roll = 0.f;
-		TargetRotation = UKismetMathLibrary::ComposeRotators(TargetRotation, CameraRotation);
+		if (Direction.SizeSquared() > 0.1f)
+		{
+			Direction.Set(-Direction.Y, Direction.X, 0.f);
+			// Find LookAt Rotation
+			FRotator TargetRotationWorld = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), GetActorLocation() + Direction);
+			LastTurretRotation = TargetRotationWorld;
+			
+			// Multiply by camera forward vector to get the correct rotation
+			FRotator CameraRotation = Camera->GetComponentRotation();
+			CameraRotation.Pitch = 0.f;
+			CameraRotation.Roll = 0.f;
+			TargetRotationWorld = UKismetMathLibrary::ComposeRotators(TargetRotationWorld, CameraRotation);
 
-		FRotator Rotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, 10.f);
-		TurretMesh->SetWorldRotation(Rotation);
+			FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
+			FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
+
+			TurretMesh->SetRelativeRotation(Rotation);
+		}
+		else
+		{
+			FRotator TargetRotationWorld = LastTurretRotation;
+			// Multiply by camera forward vector to get the correct rotation
+			FRotator CameraRotation = Camera->GetComponentRotation();
+			CameraRotation.Pitch = 0.f;
+			CameraRotation.Roll = 0.f;
+			TargetRotationWorld = UKismetMathLibrary::ComposeRotators(TargetRotationWorld, CameraRotation);
+
+			FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
+			FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
+
+			TurretMesh->SetRelativeRotation(Rotation);
+		}
 	}
 }
 
@@ -214,12 +234,18 @@ void ATank::CheckGround()
 		Location.Z = HitResult.ImpactPoint.Z + GroundOffset;
 		SetActorLocation(Location, false, nullptr, ETeleportType::TeleportPhysics);
 
-		// // Set the tank's rotation to the hit normal
-		// FVector Normal = HitResult.ImpactNormal;
-		// FVector BaseMeshUp = BaseMesh->GetUpVector();
-		// // Rotate up vector to match the hit normal
-		// FQuat Rotation = FQuat::FindBetween(BaseMeshUp, Normal);
-		// BaseMesh->AddLocalRotation(Rotation);
+		// Set the tank's rotation to the hit normal
+		FVector Normal = HitResult.ImpactNormal;
+		FVector Up = BaseMesh->GetUpVector();
+		// Rotate up vector to match the hit normal
+		FVector RotationAxis = FVector::CrossProduct(Up, Normal);
+		
+		float RotationAngleRad = acosf(FVector::DotProduct(Up, Normal));
+		FQuat Quat = FQuat(RotationAxis, RotationAngleRad);
+		FQuat NewQuat = Quat * BaseMesh->GetComponentQuat();
+		FRotator NewRotator = NewQuat.Rotator();
+		NewRotator.Yaw = 0;
+		BaseMesh->SetRelativeRotation(NewRotator);
 	}
 }
 

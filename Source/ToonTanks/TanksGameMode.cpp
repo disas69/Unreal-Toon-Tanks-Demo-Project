@@ -50,12 +50,19 @@ void ATanksGameMode::HandleGameStart()
 {
 	if (PlayerController)
 	{
-		PlayerController->EnablePlayerInput(false);
+		if (StartDelay > 0.f)
+		{
+			PlayerController->EnablePlayerInput(false);
 
-		FTimerHandle PlayerEnableHandle;
-		FTimerDelegate PlayerEnableDelegate = FTimerDelegate::CreateUObject(PlayerController, &ATankPlayerController::EnablePlayerInput, true);
+			FTimerHandle PlayerEnableHandle;
+			FTimerDelegate PlayerEnableDelegate = FTimerDelegate::CreateUObject(PlayerController, &ATankPlayerController::EnablePlayerInput, true);
 
-		GetWorldTimerManager().SetTimer(PlayerEnableHandle, PlayerEnableDelegate, StartDelay, false);
+			GetWorldTimerManager().SetTimer(PlayerEnableHandle, PlayerEnableDelegate, StartDelay, false);
+		}
+		else
+		{
+			PlayerController->EnablePlayerInput(true);
+		}
 	}
 }
 
