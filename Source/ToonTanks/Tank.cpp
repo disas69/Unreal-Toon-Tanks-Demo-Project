@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicsEngine/PhysicsSettings.h"
 
 ATank::ATank()
 {
@@ -221,7 +222,7 @@ void ATank::CheckGround()
 	// Check if tank is on the ground
 	FHitResult HitResult;
 	FVector StartLocation = GetActorLocation() + FVector(0.f, 0.f, 50.f);
-	FVector EndLocation = StartLocation - FVector(0.f, 0.f, 300.f);
+	FVector EndLocation = StartLocation - FVector(0.f, 0.f, 1000.f);
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
@@ -229,23 +230,34 @@ void ATank::CheckGround()
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams);
 	if (bHit)
 	{
-		// Set the tank's Z location to the hit location
-		FVector Location = GetActorLocation();
-		Location.Z = HitResult.ImpactPoint.Z + GroundOffset;
-		SetActorLocation(Location, false, nullptr, ETeleportType::TeleportPhysics);
+		float DistanceToGround = FVector::Distance(GetActorLocation(), HitResult.ImpactPoint);
+		if (DistanceToGround > GroundOffset + 10.f)
+		{
+			// Move the tank down to the ground with gravity
+			FVector Location = GetActorLocation();
+			float Gravity = UPhysicsSettings::Get()->DefaultGravityZ;
+			Location.Z += Gravity * GravityMultiplier * GetWorld()->DeltaTimeSeconds;
+			SetActorLocation(Location, false, nullptr, ETeleportType::TeleportPhysics);
+		}
+		else
+		{
+			// Set the tank's Z location to the hit location
+			FVector Location = GetActorLocation();
+			Location.Z = HitResult.ImpactPoint.Z + GroundOffset;
+			SetActorLocation(Location, false, nullptr, ETeleportType::TeleportPhysics);
 
-		// Set the tank's rotation to the hit normal
-		FVector Normal = HitResult.ImpactNormal;
-		FVector Up = BaseMesh->GetUpVector();
-		// Rotate up vector to match the hit normal
-		FVector RotationAxis = FVector::CrossProduct(Up, Normal);
-		
-		float RotationAngleRad = acosf(FVector::DotProduct(Up, Normal));
-		FQuat Quat = FQuat(RotationAxis, RotationAngleRad);
-		FQuat NewQuat = Quat * BaseMesh->GetComponentQuat();
-		FRotator NewRotator = NewQuat.Rotator();
-		NewRotator.Yaw = 0;
-		BaseMesh->SetRelativeRotation(NewRotator);
+			// Set the tank's rotation to the hit normal
+			FVector Normal = HitResult.ImpactNormal;
+			FVector Up = BaseMesh->GetUpVector();
+			// Rotate up vector to match the hit normal
+			FVector RotationAxis = FVector::CrossProduct(Up, Normal);
+			float RotationAngleRad = acosf(FVector::DotProduct(Up, Normal));
+			FQuat Quat = FQuat(RotationAxis, RotationAngleRad);
+			FQuat NewQuat = Quat * BaseMesh->GetComponentQuat();
+			FRotator NewRotator = NewQuat.Rotator();
+			NewRotator.Yaw = 0;
+			BaseMesh->SetRelativeRotation(NewRotator);
+		}
 	}
 }
 

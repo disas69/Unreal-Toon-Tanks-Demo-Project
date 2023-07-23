@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float GroundOffset = 100.f;
 
+	UPROPERTY(EditAnywhere)
+	float GravityMultiplier = 1.f;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
