@@ -51,7 +51,7 @@ void ATank::Tick(float DeltaTime)
 			RotateTurret(Direction);
 		}
 	}
-	else
+	else if (PlayerController)
 	{
 		PlayerController->bShowMouseCursor = false;
 	}
