@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/PhysicsSettings.h"
 
 ATank::ATank()
@@ -17,6 +18,12 @@ ATank::ATank()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	RightDustParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Right Dust Particle"));
+	RightDustParticle->SetupAttachment(BaseMesh);
+	
+	LeftDustParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Left Dust Particle"));
+	LeftDustParticle->SetupAttachment(BaseMesh);
 }
 
 void ATank::Tick(float DeltaTime)
@@ -86,6 +93,8 @@ void ATank::Tick(float DeltaTime)
 			// OnStopMoving();
 		}
 	}
+
+	UpdateDustParticles(IsMoving);
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)
@@ -261,4 +270,30 @@ void ATank::CheckGround()
 	}
 }
 
-
+void ATank::UpdateDustParticles(bool Activate) const
+{
+	if (Activate)
+	{
+		if (RightDustParticle && !RightDustParticle->IsActive())
+		{
+			RightDustParticle->Activate();
+		}
+		
+		if (LeftDustParticle && !LeftDustParticle->IsActive())
+		{
+			LeftDustParticle->Activate();
+		}
+	}
+	else
+	{
+		if (RightDustParticle && RightDustParticle->IsActive())
+		{
+			RightDustParticle->Deactivate();
+		}
+		
+		if (LeftDustParticle && LeftDustParticle->IsActive())
+		{
+			LeftDustParticle->Deactivate();
+		}
+	}
+}

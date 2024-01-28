@@ -6,9 +6,8 @@
 #include "TankBase.h"
 #include "Tank.generated.h"
 
-/**
- * 
- */
+class UParticleSystemComponent;
+
 UCLASS()
 class TOONTANKS_API ATank : public ATankBase
 {
@@ -28,6 +27,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float GravityMultiplier = 1.f;
+	
+	UPROPERTY(EditAnywhere)
+	UParticleSystemComponent* RightDustParticle;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystemComponent* LeftDustParticle;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -71,6 +76,7 @@ private:
 	void OnStartMoving();
 	void OnStopMoving();
 	void CheckGround();
+	void UpdateDustParticles(bool Activate) const;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
