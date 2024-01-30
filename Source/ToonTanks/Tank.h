@@ -29,10 +29,10 @@ public:
 	float GravityMultiplier = 1.f;
 	
 	UPROPERTY(EditAnywhere)
-	UParticleSystemComponent* RightDustParticle;
+	TArray<FComponentReference> DustParticles;
 
-	UPROPERTY(EditAnywhere)
-	UParticleSystemComponent* LeftDustParticle;
+	UPROPERTY()
+	TArray<UParticleSystemComponent*> DustParticleSystems;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -18,12 +18,6 @@ ATank::ATank()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
-
-	RightDustParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Right Dust Particle"));
-	RightDustParticle->SetupAttachment(BaseMesh);
-	
-	LeftDustParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Left Dust Particle"));
-	LeftDustParticle->SetupAttachment(BaseMesh);
 }
 
 void ATank::Tick(float DeltaTime)
@@ -129,6 +123,15 @@ void ATank::BeginPlay()
 	Super::BeginPlay();
 	
 	PlayerController = Cast<APlayerController>(GetController());
+
+	for (FComponentReference DustParticle : DustParticles)
+	{
+		UParticleSystemComponent* ParticleSystem = Cast<UParticleSystemComponent>(DustParticle.GetComponent(this));
+		if (ParticleSystem)
+		{
+			DustParticleSystems.Add(ParticleSystem);
+		}
+	}
 }
 
 void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -272,28 +275,15 @@ void ATank::CheckGround()
 
 void ATank::UpdateDustParticles(bool Activate) const
 {
-	if (Activate)
+	for (UParticleSystemComponent* ParticleSystem : DustParticleSystems)
 	{
-		if (RightDustParticle && !RightDustParticle->IsActive())
+		if (Activate)
 		{
-			RightDustParticle->Activate();
+			ParticleSystem->Activate();
 		}
-		
-		if (LeftDustParticle && !LeftDustParticle->IsActive())
+		else
 		{
-			LeftDustParticle->Activate();
-		}
-	}
-	else
-	{
-		if (RightDustParticle && RightDustParticle->IsActive())
-		{
-			RightDustParticle->Deactivate();
-		}
-		
-		if (LeftDustParticle && LeftDustParticle->IsActive())
-		{
-			LeftDustParticle->Deactivate();
+			ParticleSystem->Deactivate();
 		}
 	}
 }
