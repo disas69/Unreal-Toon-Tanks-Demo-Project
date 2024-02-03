@@ -6,7 +6,10 @@
 #include "TankBase.h"
 #include "Tank.generated.h"
 
+class UInputAction;
 class UParticleSystemComponent;
+class UInputMappingContext;
+struct FInputActionInstance;
 
 UCLASS()
 class TOONTANKS_API ATank : public ATankBase
@@ -16,6 +19,22 @@ class TOONTANKS_API ATank : public ATankBase
 public:
 	ATank();
 
+	// Input
+	UPROPERTY(EditAnywhere)
+	UInputMappingContext* InputMapping;
+	
+	UPROPERTY(EditAnywhere)
+	UInputAction* MoveForwardAction;
+
+	UPROPERTY(EditAnywhere)
+	UInputAction* MoveRightAction;
+
+	UPROPERTY(EditAnywhere)
+	UInputAction* RotateTurretAction;
+
+	UPROPERTY(EditAnywhere)
+	UInputAction* FireAction;
+	
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed = 100.f;
 
@@ -68,8 +87,13 @@ private:
 	bool IsMoving = false;
 	bool IsGamepadInput;
 
-	void Move(float Value);
-	void Rotate(float Value);
+	UFUNCTION()
+	void Move(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void Rotate(const FInputActionInstance& Instance);
+
+	UFUNCTION()
 	void RotateTurretInDirection(FVector Direction);
 
 	class FCTweenInstance* MoveAnimTween;

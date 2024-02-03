@@ -10,6 +10,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/PhysicsSettings.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 ATank::ATank()
 {
@@ -89,6 +91,9 @@ void ATank::Tick(float DeltaTime)
 	}
 
 	UpdateDustParticles(IsMoving);
+
+	// Clear move direction
+	MoveDirection = FVector::ZeroVector;
 }
 
 void ATank::SetGamepadInputActive(bool IsActive)
@@ -138,20 +143,31 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
-	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ATank::Rotate);
-	PlayerInputComponent->BindVectorAxis(EKeys::Gamepad_Right2D, this, &ATank::RotateTurretInDirection);
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
+	PlayerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+
+	InputSubsystem->ClearAllMappings();
+	InputSubsystem->AddMappingContext(InputMapping, 0);
+	
+	UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	EnhancedInput->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &ATank::Move);
+	EnhancedInput->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &ATank::Rotate);
+	EnhancedInput->BindAction(FireAction, ETriggerEvent::Triggered, this, &ATank::Fire);
+
+	// PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
+	// PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ATank::Rotate);
+	// PlayerInputComponent->BindVectorAxis(EKeys::Gamepad_Right2D, this, &ATank::RotateTurretInDirection);
+	// PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
 }
 
-void ATank::Move(float Value)
+void ATank::Move(const FInputActionInstance& Instance)
 {
-	MoveDirection.X = Value;
+	MoveDirection.X = Instance.GetValue().Get<float>();
 }
 
-void ATank::Rotate(float Value)
+void ATank::Rotate(const FInputActionInstance& Instance)
 {
-	MoveDirection.Y = Value;
+	MoveDirection.Y = Instance.GetValue().Get<float>();
 }
 
 void ATank::RotateTurretInDirection(FVector Direction)

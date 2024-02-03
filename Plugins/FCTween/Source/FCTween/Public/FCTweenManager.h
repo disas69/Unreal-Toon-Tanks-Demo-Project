@@ -96,6 +96,11 @@ public:
 
 	void ClearActiveTweens()
 	{
+		if (TweensToActivate == nullptr)
+		{
+			return;
+		}
+		
 		TNode* CurNode = TweensToActivate->GetHead();
 		while (CurNode != nullptr)
 		{
