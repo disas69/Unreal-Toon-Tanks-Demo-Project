@@ -6,9 +6,8 @@
 #include "TankBase.h"
 #include "Tank.generated.h"
 
-class UInputAction;
+class UInputDataConfig;
 class UParticleSystemComponent;
-class UInputMappingContext;
 struct FInputActionInstance;
 
 UCLASS()
@@ -19,21 +18,8 @@ class TOONTANKS_API ATank : public ATankBase
 public:
 	ATank();
 
-	// Input
 	UPROPERTY(EditAnywhere)
-	UInputMappingContext* InputMapping;
-	
-	UPROPERTY(EditAnywhere)
-	UInputAction* MoveForwardAction;
-
-	UPROPERTY(EditAnywhere)
-	UInputAction* MoveRightAction;
-
-	UPROPERTY(EditAnywhere)
-	UInputAction* RotateTurretAction;
-
-	UPROPERTY(EditAnywhere)
-	UInputAction* FireAction;
+	UInputDataConfig* InputConfig;
 	
 	UPROPERTY(EditAnywhere)
 	float MoveSpeed = 100.f;
@@ -94,7 +80,7 @@ private:
 	void Rotate(const FInputActionInstance& Instance);
 
 	UFUNCTION()
-	void RotateTurretInDirection(FVector Direction);
+	void RotateTurretInDirection(const FInputActionInstance& Instance);
 
 	class FCTweenInstance* MoveAnimTween;
 	void OnStartMoving();

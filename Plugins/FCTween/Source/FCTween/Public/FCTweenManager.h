@@ -7,10 +7,10 @@ class FCTWEEN_API FCTweenManager
 	typedef typename TDoubleLinkedList<T*>::TDoubleLinkedListNode TNode;
 
 private:
-	TDoubleLinkedList<T*>* ActiveTweens;
-	TDoubleLinkedList<T*>* RecycledTweens;
+	TDoubleLinkedList<T*>* ActiveTweens = nullptr;
+	TDoubleLinkedList<T*>* RecycledTweens = nullptr;
 	// tweens to activate on the next update
-	TDoubleLinkedList<T*>* TweensToActivate;
+	TDoubleLinkedList<T*>* TweensToActivate = nullptr;
 
 public:
 	FCTweenManager(int Capacity)

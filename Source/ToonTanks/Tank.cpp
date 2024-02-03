@@ -12,6 +12,7 @@
 #include "PhysicsEngine/PhysicsSettings.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Input/InputDataConfig.h"
 
 ATank::ATank()
 {
@@ -54,7 +55,7 @@ void ATank::Tick(float DeltaTime)
 
 	float Scale = FMath::Clamp(MoveDirection.Size(), 0.f, 1.f);
 	
-	if (Scale > 0.f)
+	if (Scale > 0.01f)
 	{
 		if (!IsMoving)
 		{
@@ -143,21 +144,23 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (InputConfig == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("InputConfig is not set in %s. Please set it in the editor."), *GetName());
+		return;
+	}
+	
 	PlayerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 
 	InputSubsystem->ClearAllMappings();
-	InputSubsystem->AddMappingContext(InputMapping, 0);
+	InputSubsystem->AddMappingContext(InputConfig->InputMapping, 0);
 	
 	UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	EnhancedInput->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &ATank::Move);
-	EnhancedInput->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &ATank::Rotate);
-	EnhancedInput->BindAction(FireAction, ETriggerEvent::Triggered, this, &ATank::Fire);
-
-	// PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
-	// PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ATank::Rotate);
-	// PlayerInputComponent->BindVectorAxis(EKeys::Gamepad_Right2D, this, &ATank::RotateTurretInDirection);
-	// PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
+	EnhancedInput->BindAction(InputConfig->MoveForwardAction, ETriggerEvent::Triggered, this, &ATank::Move);
+	EnhancedInput->BindAction(InputConfig->MoveRightAction, ETriggerEvent::Triggered, this, &ATank::Rotate);
+	EnhancedInput->BindAction(InputConfig->FireAction, ETriggerEvent::Triggered, this, &ATank::Fire);
+	EnhancedInput->BindAction(InputConfig->RotateTurretAction, ETriggerEvent::Triggered, this, &ATank::RotateTurretInDirection);
 }
 
 void ATank::Move(const FInputActionInstance& Instance)
@@ -170,42 +173,46 @@ void ATank::Rotate(const FInputActionInstance& Instance)
 	MoveDirection.Y = Instance.GetValue().Get<float>();
 }
 
-void ATank::RotateTurretInDirection(FVector Direction)
+void ATank::RotateTurretInDirection(const FInputActionInstance& Instance)
 {
-	if (IsGamepadInput)
+	if (!IsGamepadInput)
 	{
-		if (Direction.SizeSquared() > 0.1f)
-		{
-			Direction.Set(-Direction.Y, Direction.X, 0.f);
-			// Find LookAt Rotation
-			FRotator TargetRotationWorld = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), GetActorLocation() + Direction);
-			LastTurretRotation = TargetRotationWorld;
+		return;
+	}
+
+	FVector Direction = Instance.GetValue().Get<FVector>();
+	
+	if (Direction.SizeSquared() > 0.1f)
+	{
+		Direction.Set(-Direction.Y, Direction.X, 0.f);
+		// Find LookAt Rotation
+		FRotator TargetRotationWorld = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), GetActorLocation() + Direction);
+		LastTurretRotation = TargetRotationWorld;
 			
-			// Multiply by camera forward vector to get the correct rotation
-			FRotator CameraRotation = Camera->GetComponentRotation();
-			CameraRotation.Pitch = 0.f;
-			CameraRotation.Roll = 0.f;
-			TargetRotationWorld = UKismetMathLibrary::ComposeRotators(TargetRotationWorld, CameraRotation);
+		// Multiply by camera forward vector to get the correct rotation
+		FRotator CameraRotation = Camera->GetComponentRotation();
+		CameraRotation.Pitch = 0.f;
+		CameraRotation.Roll = 0.f;
+		TargetRotationWorld = UKismetMathLibrary::ComposeRotators(TargetRotationWorld, CameraRotation);
 
-			FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
-			FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
+		FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
+		FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
 
-			TurretMesh->SetRelativeRotation(Rotation);
-		}
-		else
-		{
-			FRotator TargetRotationWorld = LastTurretRotation;
-			// Multiply by camera forward vector to get the correct rotation
-			FRotator CameraRotation = Camera->GetComponentRotation();
-			CameraRotation.Pitch = 0.f;
-			CameraRotation.Roll = 0.f;
-			TargetRotationWorld = UKismetMathLibrary::ComposeRotators(TargetRotationWorld, CameraRotation);
+		TurretMesh->SetRelativeRotation(Rotation);
+	}
+	else
+	{
+		FRotator TargetRotationWorld = LastTurretRotation;
+		// Multiply by camera forward vector to get the correct rotation
+		FRotator CameraRotation = Camera->GetComponentRotation();
+		CameraRotation.Pitch = 0.f;
+		CameraRotation.Roll = 0.f;
+		TargetRotationWorld = UKismetMathLibrary::ComposeRotators(TargetRotationWorld, CameraRotation);
 
-			FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
-			FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
+		FRotator TargetRotationLocal = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), TargetRotationWorld);
+		FRotator Rotation = FMath::RInterpTo(TurretMesh->GetRelativeRotation(), TargetRotationLocal, GetWorld()->DeltaTimeSeconds, 10.f);
 
-			TurretMesh->SetRelativeRotation(Rotation);
-		}
+		TurretMesh->SetRelativeRotation(Rotation);
 	}
 }
 
