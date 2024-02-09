@@ -2,7 +2,6 @@
 
 
 #include "Tank.h"
-
 #include "FCTween.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -36,15 +35,10 @@ void ATank::Tick(float DeltaTime)
 		FHitResult CursorHitResult;
 		if (PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, CursorHitResult))
 		{
-			// DrawDebugSphere(GetWorld(), CursorHitResult.ImpactPoint, 25.f, 8, FColor::Red, false, 0.1f);
-
 			FVector HitLocation = CursorHitResult.ImpactPoint;
 			HitLocation.Z = GetActorLocation().Z;
 			FVector Direction = HitLocation - GetActorLocation();
 			Direction.Normalize();
-
-			// DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Direction * 1000.f, FColor::Red, false, 0.1f, 0, 5.f);
-
 			RotateTurret(Direction);
 		}
 	}
@@ -68,8 +62,6 @@ void ATank::Tick(float DeltaTime)
 		float Speed = Scale * MoveSpeed;
 		SetActorLocation(GetActorLocation() + MoveDirection * Speed * DeltaTime, true);
 		
-		// AddActorWorldOffset(MoveDirection * Scale * MoveSpeed * DeltaTime, true);
-
 		FRotator TurretRotation = TurretMesh->GetComponentRotation();
 		
 		// Rotate tank in direction of movement
@@ -105,6 +97,7 @@ void ATank::SetGamepadInputActive(bool IsActive)
 void ATank::HandleDestruction()
 {
 	Super::HandleDestruction();
+	
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
 
